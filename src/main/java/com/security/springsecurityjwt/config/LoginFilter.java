@@ -1,20 +1,27 @@
 package com.security.springsecurityjwt.config;
 
+import io.jsonwebtoken.lang.Maps;
 import lombok.var;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.annotation.Resource;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 登录过滤器
@@ -25,6 +32,9 @@ public class LoginFilter extends OncePerRequestFilter {
 
     @Resource
     private AuthenticationManager authenticationManager;
+
+    @Resource
+    private JwtHelper jwtHelper;
 
     /**
      * 校验账号密码是否正确
@@ -49,14 +59,29 @@ public class LoginFilter extends OncePerRequestFilter {
      * @param filterChain 过滤器链
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         var username = request.getHeader("username");
         var password = request.getHeader("password");
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-        response.setHeader(HttpHeaders.AUTHORIZATION, username);
+        response.setHeader(HttpHeaders.AUTHORIZATION, createJwtToken(authenticate));
+    }
+
+    /**
+     * 创建Token
+     *
+     * @param authenticate
+     * @return
+     */
+    private String createJwtToken(Authentication authenticate) {
+
+        var user = (User) authenticate.getPrincipal();
+
+        var roleString = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
+
+        return jwtHelper.createToken(user.getUsername(), new HashMap<String, Object>() {{put("roles", roleString);}});
 
     }
 

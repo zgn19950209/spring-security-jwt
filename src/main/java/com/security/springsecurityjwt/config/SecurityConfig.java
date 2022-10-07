@@ -1,7 +1,6 @@
 package com.security.springsecurityjwt.config;
 
 import lombok.var;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +9,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @Description:
@@ -25,11 +26,14 @@ import javax.annotation.Resource;
  **/
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SpringSecurityConfig {
+public class SecurityConfig {
 
     @Lazy
     @Resource
     private LoginFilter loginFilter;
+
+    @Resource
+    private JwtFilter jwtFilter;
 
     @Resource
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -68,7 +72,13 @@ public class SpringSecurityConfig {
         return new ProviderManager(dao);
     }
 
-
+    /**
+     * 定义security 过滤器链
+     *
+     * @param http
+     * @return
+     * @throws Exception
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -77,8 +87,20 @@ public class SpringSecurityConfig {
                 .authorizeRequests().anyRequest().authenticated()
 
                 .and()
-                .addFilterAt(loginFilter, BasicAuthenticationFilter.class);
+                .addFilterAt(loginFilter, BasicAuthenticationFilter.class)
+                .addFilterAt(jwtFilter, BasicAuthenticationFilter.class)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().println(authException.getMessage());
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().println(accessDeniedException.getMessage());
+                });
 
         return http.build();
     }

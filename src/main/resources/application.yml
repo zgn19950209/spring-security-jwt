@@ -3,3 +3,5 @@ logging:
     org:
       springframework:
         security: DEBUG
+jwt:
+  secret: BUXw1eHVCG2ozLEs6IdXHAN9qxrSeotnZMe2TWZGebMzi1IWcqGtxqU559yG53pQ
