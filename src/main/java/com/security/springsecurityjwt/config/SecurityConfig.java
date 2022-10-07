@@ -1,5 +1,6 @@
 package com.security.springsecurityjwt.config;
 
+import com.security.springsecurityjwt.service.CustomizeUserDetailService;
 import lombok.var;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
@@ -38,16 +39,14 @@ public class SecurityConfig {
     @Resource
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Resource
+    private CustomizeUserDetailService customizeUserDetailService;
+
 
     @Bean
     public UserDetailsService userDetailsService() {
 
-        var uds = new InMemoryUserDetailsManager();
-
-        uds.createUser(User.builder().username("user").password(bCryptPasswordEncoder.encode("user")).roles("USER").build());
-        uds.createUser(User.builder().username("admin").password(bCryptPasswordEncoder.encode("admin")).roles("ADMIN").build());
-
-        return uds;
+        return customizeUserDetailService;
     }
 
 

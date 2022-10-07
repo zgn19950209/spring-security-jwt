@@ -21,9 +21,8 @@ public class LoginController {
     }
 
     @GetMapping(value = "/profile")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<User> profile(Authentication authentication) {
-        var user = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(user);
+    @PreAuthorize("hasAuthority('USER')")
+    public ResponseEntity<Authentication> profile(Authentication authentication) {
+        return ResponseEntity.ok(authentication);
     }
 }

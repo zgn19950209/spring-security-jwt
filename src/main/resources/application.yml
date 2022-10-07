@@ -3,5 +3,45 @@ logging:
     org:
       springframework:
         security: DEBUG
+    com.baomidou.mybatisplus.samples: debug
 jwt:
   secret: BUXw1eHVCG2ozLEs6IdXHAN9qxrSeotnZMe2TWZGebMzi1IWcqGtxqU559yG53pQ
+
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/security?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+
+
+
+# mybatis配置
+mybatis-plus:
+  # 如果是放在src/main/java目录下 classpath:/com/yourpackage/*/mapper/*Mapper.xml
+  # 如果是放在resource目录 classpath:/mapper/*Mapper.xml
+  #  mapper-locations: classpath:/mapper/*/*Mapper.xml
+  mapper-locations: classpath*:/com/security/springsecurityjwt/**/*Mapper.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.security.springsecurityjwt.entity
+  global-config:
+    db-config:
+      #主键类型  AUTO:"数据库ID自增", INPUT:"用户输入ID",UUID:"全局唯一ID UUID";
+      id-type: ASSIGN_ID
+      #字段策略 IGNORED:"忽略判断",NOT_NULL:"非 NULL 判断",NOT_EMPTY:"非空判断"
+      insert-strategy: NOT_NULL
+      #驼峰下划线转换
+      table-underline: true
+      #数据库大写下划线转换
+      capital-mode: true
+      #逻辑删除配置及全局字段名称（下面3个配置）
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    #配置JdbcTypeForNull
+    jdbc-type-for-null: NULL
+    default-enum-type-handler: com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler
