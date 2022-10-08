@@ -1,7 +1,8 @@
 package com.security.springsecurityjwt.controller;
 
 /**
- * @Description: 测试Controller
- **/
+ * 描述: 测试端点
+ */
 public class TestController {
+
 }
