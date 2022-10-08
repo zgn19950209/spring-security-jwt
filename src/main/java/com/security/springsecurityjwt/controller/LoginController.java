@@ -6,10 +6,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @Description:
- * @Created 2022/10/7 13:52
- **/
 @RestController
 public class LoginController {
 
