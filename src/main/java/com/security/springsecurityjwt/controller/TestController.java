@@ -5,4 +5,5 @@ package com.security.springsecurityjwt.controller;
  */
 public class TestController {
     String s = "";
+    String ss = "";
 }
